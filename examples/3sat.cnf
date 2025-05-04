@@ -1,0 +1,8 @@
+c 3-SAT formula example
+c Each clause has exactly 3 literals
+c (x1 OR x2 OR x3) AND (NOT x1 OR x2 OR x4) AND (x2 OR NOT x3 OR NOT x4) AND (NOT x1 OR NOT x2 OR x5)
+p cnf 5 4
+1 2 3 0
+-1 2 4 0
+2 -3 -4 0
+-1 -2 5 0 
