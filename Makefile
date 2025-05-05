@@ -49,6 +49,8 @@ test: $(TARGET)
 	$(TARGET) examples/pigeonhole.cnf
 	@echo "\nAll tests completed."
 
+test-SATLIB: $(TARGET)
+	$(TARGET) examples/CBS_k3_n100_m423_b50/CBS_k3_n100_m423_b50_8.cnf
 # Comprehensive test suite
 tests: $(TARGET_TEST)
 	$(TARGET_TEST) 
