@@ -83,6 +83,7 @@ bool unit_propagation(Formula* formula, Assignment* assignment) {
                 // Assign the variable
                 assignment->values[var - 1] = value;
                 assignment->assigned[var - 1] = true;
+                assignment->decision[var - 1] = ASSIGN_IMPLIED;
                 changes_made = true;
                 
                 // Check if this assignment creates an empty clause
@@ -151,16 +152,15 @@ bool solve_dpll(Formula* formula, Assignment* assignment) {
     
     // Try setting the variable to true
     Assignment* true_assignment = create_assignment(formula->num_variables);
-    memcpy(true_assignment->values, assignment->values, formula->num_variables * sizeof(bool));
-    memcpy(true_assignment->assigned, assignment->assigned, formula->num_variables * sizeof(bool));
-    
+    copy_assignment(assignment, true_assignment);
+
     true_assignment->values[var - 1] = true;
     true_assignment->assigned[var - 1] = true;
-    
+    true_assignment->decision[var - 1] = ASSIGN_BRANCH;
+
     if (solve_dpll(formula, true_assignment)) {
         // Copy the successful assignment back
-        memcpy(assignment->values, true_assignment->values, formula->num_variables * sizeof(bool));
-        memcpy(assignment->assigned, true_assignment->assigned, formula->num_variables * sizeof(bool));
+        copy_assignment(true_assignment, assignment);
         free_assignment(true_assignment);
         return true;
     }
@@ -169,16 +169,15 @@ bool solve_dpll(Formula* formula, Assignment* assignment) {
     
     // Try setting the variable to false
     Assignment* false_assignment = create_assignment(formula->num_variables);
-    memcpy(false_assignment->values, assignment->values, formula->num_variables * sizeof(bool));
-    memcpy(false_assignment->assigned, assignment->assigned, formula->num_variables * sizeof(bool));
-    
+    copy_assignment(assignment, false_assignment);
+
     false_assignment->values[var - 1] = false;
     false_assignment->assigned[var - 1] = true;
+    false_assignment->decision[var - 1] = ASSIGN_BRANCH;
     
     if (solve_dpll(formula, false_assignment)) {
         // Copy the successful assignment back
-        memcpy(assignment->values, false_assignment->values, formula->num_variables * sizeof(bool));
-        memcpy(assignment->assigned, false_assignment->assigned, formula->num_variables * sizeof(bool));
+        copy_assignment(false_assignment, assignment);
         free_assignment(false_assignment);
         return true;
     }
@@ -199,6 +198,8 @@ Assignment* create_assignment(int num_variables) {
     
     assignment->values = (bool*)calloc(num_variables, sizeof(bool));
     assignment->assigned = (bool*)calloc(num_variables, sizeof(bool));
+    assignment->depth = (int*)calloc(num_variables, sizeof(int));
+    assignment->decision = (int*)calloc(num_variables, sizeof(int));
     
     if (!assignment->values || !assignment->assigned) {
         perror("Failed to allocate memory for assignment arrays");
@@ -206,6 +207,10 @@ Assignment* create_assignment(int num_variables) {
     }
     
     assignment->size = num_variables;
+    for(int i = 0; i < num_variables; i++){
+        assignment->depth[i] = 0;
+        assignment->decision[i] = ASSIGN_NONE;
+    }
     return assignment;
 }
 
@@ -214,9 +219,18 @@ void free_assignment(Assignment* assignment) {
     if (!assignment) return;
     free(assignment->values);
     free(assignment->assigned);
+    free(assignment->depth);
+    free(assignment->decision);
     free(assignment);
 }
 
+// Copy an assignment
+void copy_assignment(Assignment* assignment_from, Assignment* assignment_to) {
+    memcpy(assignment_to->values, assignment_from->values, assignment_from->size * sizeof(bool));
+    memcpy(assignment_to->assigned, assignment_from->assigned, assignment_from->size * sizeof(bool));
+    memcpy(assignment_to->decision, assignment_from->decision, assignment_from->size * sizeof(int));
+    memcpy(assignment_to->depth, assignment_from->depth, assignment_from->size * sizeof(int));
+}
 // Print the assignment
 void print_assignment(Assignment* assignment) {
     printf("ASSIGNMENT: ");
