@@ -219,12 +219,12 @@ void free_assignment(Assignment* assignment) {
 
 // Print the assignment
 void print_assignment(Assignment* assignment) {
-    printf("Assignment:\n");
+    printf("ASSIGNMENT: ");
     for (int i = 0; i < assignment->size; i++) {
         if (assignment->assigned[i]) {
-            printf("Variable %d = %s\n", i + 1, assignment->values[i] ? "true" : "false");
+            printf("%d=%s ", i + 1, assignment->values[i] ? "1" : "0");
         } else {
-            printf("Variable %d = unassigned\n", i + 1);
+            printf("%d=0" , i + 1);
         }
     }
 } 

@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     
     // Print the result
     if (result) {
-        printf("\nSAT: Formula is satisfiable!\n");
+        printf("\nRESULT: SAT\n");
         print_assignment(assignment);
         
         // Verify the solution
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
             printf("\nVerification Error: The assignment does not satisfy all clauses!\n");
         }
     } else {
-        printf("\nUNSAT: Formula is unsatisfiable.\n");
+        printf("\nRESULT: UNSAT\n");
     }
     
     // Free memory
