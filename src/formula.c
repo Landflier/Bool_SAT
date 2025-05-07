@@ -1,6 +1,6 @@
 #include "sat.h"
 
-#define INITIAL_CAPACITY 10
+#define INITIAL_CAPACITY 32
 
 Formula* create_formula() {
     Formula* formula = (Formula*)malloc(sizeof(Formula));
@@ -95,3 +95,8 @@ void free_clause(Clause* clause) {
     free(clause->literals);
     // Note: We don't free the clause itself because it's part of the formula array
 } 
+
+//sorts descending
+int comp(const void *a, const void *b) {
+    return (*(int *)b - *(int *)a);
+}
