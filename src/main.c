@@ -45,9 +45,7 @@ int main(int argc, char* argv[]) {
     
     // Solve the formula
     printf("\nSolving...\n");
-    print_assignment(assignment);
     bool result = solve(formula, assignment);
-    
     // Print the result
     if (result) {
         printf("\nRESULT: SAT\n");

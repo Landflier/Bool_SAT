@@ -1,6 +1,7 @@
 #ifndef SAT_H
 #define SAT_H
 
+
 #define UIP_UNRESOLVED 0
 #define UIP_CONFLICT 1
 
@@ -57,7 +58,7 @@ Clause* create_clause();
 void add_literal(Clause* clause, Literal lit);
 void free_clause(Clause* clause);
 int clause_status(Clause* clause, Assignment* assignment);
-int unit_propagation(Formula* formula, Assignment* assignment, Clause* conflict_clause);
+int unit_propagation(Formula* formula, Assignment* assignment, Clause** conflict_clause);
 
 // Parser
 Formula* parse_cnf_file(const char* filename);
@@ -69,16 +70,19 @@ bool solve_dpll(Formula* formula, Assignment* assignment);
 
 // Assignment operations
 Assignment* create_assignment(int num_variables);
-void free_assignment(Assignment* assignment);
 void backtrack_assignment(Assignment* assignment, int backtrack_level);
 bool is_satisfied(Formula* formula, Assignment* assignment);
 bool all_variables_assigned(Assignment* assignment, Formula* formula);
 void print_assignment(Assignment* assignment);
 int choose_variable(Formula* formula, Assignment* assignment);
+void free_assignment(Assignment* assignment);
+
+// Clause operations
+void print_clause(Clause* clause);
 
 // Conflict analysis
 int conflict_analysis(Formula* formula, Clause* clause, Assignment* assignment);
-Clause* resolve_clauses(Clause* clause_a, Clause* clause_b, Literal* literal);
+Clause* resolve_clauses(Clause* clause_a, Clause* clause_b, Literal literal);
 // Test functions
 Formula* generate_random_formula(int num_vars, int num_clauses, int clause_size);
 bool test_random_formula(int num_vars, int num_clauses, int clause_size);
@@ -89,5 +93,7 @@ int run_all_tests();
 
 //helper function to sort the depth levels. used for backtracking in analyze_conflict
 int comp(const void *a, const void *b);
+int getSecondLargest(int* array, int n);
+
 
 #endif // SAT_H 

@@ -60,6 +60,7 @@ Clause* create_clause() {
     Clause* clause = (Clause*)malloc(sizeof(Clause));
     if (!clause) {
         perror("Failed to allocate memory for clause");
+        free(clause);
         exit(EXIT_FAILURE);
     }
     
@@ -69,7 +70,6 @@ Clause* create_clause() {
         free(clause);
         exit(EXIT_FAILURE);
     }
-    
     clause->size = 0;
     clause->capacity = INITIAL_CAPACITY;
     
@@ -99,4 +99,23 @@ void free_clause(Clause* clause) {
 //sorts descending
 int comp(const void *a, const void *b) {
     return (*(int *)b - *(int *)a);
+}
+
+int getSecondLargest(int* array, int n) {
+    
+    // Sort the array in non-decreasing order
+    qsort(array, n, sizeof(int), comp);
+  
+    // start from second last element as last element is the largest
+    for (int i = n - 2; i >= 0; i--) {
+        
+        // return the first element which is not equal to the 
+        // largest element
+        if (array[i] != array[n - 1]) {
+            return array[i];
+        }
+    }
+  
+    // If no second largest element was found, return the largest element
+    return array[n-1];
 }
