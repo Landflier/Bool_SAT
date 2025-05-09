@@ -38,27 +38,28 @@ int main(int argc, char* argv[]) {
     }
     
     // Print the formula
-    print_formula(formula);
+    // print_formula(formula);
     
     // Create an empty assignment
     Assignment* assignment = create_assignment(formula->num_variables);
     
     // Solve the formula
-    printf("\nSolving...\n");
     bool result = solve(formula, assignment);
     // Print the result
     if (result) {
-        printf("\nRESULT: SAT\n");
+        printf("RESULT: SAT\n");
         print_assignment(assignment);
         
         // Verify the solution
+        /*
         if (is_satisfied(formula, assignment)) {
             printf("\nVerification: The assignment satisfies all clauses.\n");
         } else {
             printf("\nVerification Error: The assignment does not satisfy all clauses!\n");
         }
+        */
     } else {
-        printf("\nRESULT: UNSAT\n");
+        printf("RESULT: UNSAT\n");
     }
     
     // Free memory
