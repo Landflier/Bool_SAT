@@ -331,7 +331,7 @@ void print_clause(Clause* clause) {
 
 // Print the assignment
 void print_assignment(Assignment* assignment) {
-    printf("ASSIGNMENT: \n");
+    printf("ASSIGNMENT: ");
     for (int i = 0; i < assignment->size; i++) {
         if (assignment->assigned[i]) {
             printf("%d=%s ", i + 1, assignment->values[i] ? "1" : "0");
@@ -340,5 +340,6 @@ void print_assignment(Assignment* assignment) {
             printf("%d=NOT ASSIGNED " , i + 1);
         }
     }
+    printf("\n");
     //printf("current_depth_level: %d\n", assignment->current_depth_level);
 } 
