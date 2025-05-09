@@ -33,7 +33,6 @@ bool is_satisfied(Formula* formula, Assignment* assignment) {
 bool all_variables_assigned(Assignment* assignment, Formula* formula){
     for (int i = 0; i < formula->num_variables; i++){
         if (!assignment->assigned[i]){
-            printf("Variable %d is not assigned\n", i+1);
             return false;
         }
     }
@@ -63,12 +62,9 @@ int unit_propagation(Formula* formula, Assignment* assignment, Clause** conflict
             }else if(status == CLAUSE_UNIT){
                 // find unit literal and assign it
                 for (int j = 0; j < clause->size; j++){
-                    printf("Checking literal %d\n", clause->literals[j]);
                     Literal lit = clause->literals[j];
                     int var = abs(lit);
                     if(!assignment->assigned[var-1]){
-                        printf("Literal %d is not assigned and is unit\n", var);
-                        printf("Assigning value %b\n", (lit>0));
                         assignment->assigned[var-1] = true;
                         assignment->values[var-1] = (lit > 0);
                         assignment->depth[var-1] = assignment->current_depth_level;
@@ -93,11 +89,9 @@ int choose_variable(Formula* formula, Assignment* assignment) {
     // i is the index, care not to subtract 1
     for (int i = 0; i < formula->num_variables; i++) {
         if (!assignment->assigned[i]) {            
-            printf("Choosing variable %d, assigning true\n", i+1);
             assignment->assigned[i] = true;
             assignment->values[i] = true; // assign true to the variable
-            assignment->depth[i] = assignment->current_depth_level;
-
+            assignment->depth[i] = assignment->current_depth_level;            
             return i + 1;
         }
     }
@@ -115,14 +109,14 @@ bool solve_dpll(Formula* formula, Assignment* assignment) {
     }
     
     while (!all_variables_assigned(assignment, formula)){
-        // Choose an unassigned literal 
+        // Choose an unassigned literal and assign it true
+        assignment->current_depth_level++;
         int var = choose_variable(formula, assignment);
 
             while (true){
                 int reason = unit_propagation(formula, assignment, &conflict_clause);
                 if (reason != UIP_CONFLICT){
                     // no conflict after UIP, so return to branching
-                    assignment->current_depth_level++;
                     break;
                 }
                 int b = conflict_analysis(formula, conflict_clause, assignment);
@@ -130,7 +124,6 @@ bool solve_dpll(Formula* formula, Assignment* assignment) {
                 // if conflict was 'backpropagated' to the root,
                 // then we have no solution
                 if ( b < 0 ){
-                    printf("Conflict analysis returned %d\n", b);
                     return false;
                 }
 
@@ -139,7 +132,7 @@ bool solve_dpll(Formula* formula, Assignment* assignment) {
             }
     } 
     // SAT found
-    print_assignment(assignment);
+    //print_assignment(assignment); -> this is in main() too
     return true;
     
 }
@@ -180,8 +173,6 @@ Clause* resolve_clauses(Clause* clause_a, Clause* clause_b, Literal literal){
 }
 
 int conflict_analysis(Formula* formula, Clause* clause, Assignment* assignment){
-    printf("entered conflict_analysis with current assignment:\n");
-    //printf("clause size: %d\n", clause->size);
     if (assignment->current_depth_level == 0){
         return (-1);
     }
@@ -199,16 +190,13 @@ int conflict_analysis(Formula* formula, Clause* clause, Assignment* assignment){
             count++;
         }
     }
-    //printf("literals at current depth: ");
-    //for (int i = 0; i < count; i++){
-    //    printf("%d ", literals_at_current_depth[i]);
-    //}
+
     // select any literal on the current depth level
     Clause* learned_clause = create_clause();
-    printf("assignment when calculating backtrack level: ");
-    print_assignment(assignment);
-    int max_iterations = 10;
-    while (count > 1 && max_iterations > 0) {
+    learned_clause = clause;
+    //printf("assignment when calculating backtrack level: ");
+    //print_assignment(assignment);
+    while (count > 1 ) {
         // Filter for implied literals
         int i;
         // pick any literal that is implied
@@ -221,16 +209,9 @@ int conflict_analysis(Formula* formula, Clause* clause, Assignment* assignment){
 
         Literal literal = literals_at_current_depth[i];
         Clause antecedent = formula->clauses[assignment->antecedent_clause[abs(literal)-1]];
-        printf("resolving clause: ");
-        print_clause(clause);
-        printf("and ");
-        print_clause(&antecedent);
-        printf("with literal: %d\n", literal);
-        learned_clause = resolve_clauses(clause, &antecedent, literal);
 
-        printf("learned clause: ");
-        print_clause(learned_clause);
- 
+        learned_clause = resolve_clauses(learned_clause, &antecedent, literal);
+
         // Rebuild temp with new clause
         count = 0;
         for (int i = 0; i < learned_clause->size; i++) {
@@ -239,21 +220,17 @@ int conflict_analysis(Formula* formula, Clause* clause, Assignment* assignment){
                 count++;
             }
         }
-        printf("updated literals_at_current_depth: ");
-        for (int i = 0; i < count; i++){
-            printf("%d ", literals_at_current_depth[i]);
-        }
-        printf("\n");  
-        max_iterations--;
     }
 
+    add_clause(formula, learned_clause);
+
     int* deision_levels = (int*)malloc(sizeof(int) * learned_clause->size);
+    for (int i = 0; i < learned_clause->size; i++){
+        deision_levels[i] = assignment->depth[abs(learned_clause->literals[i])-1];
+    }
     if (learned_clause->size <=1){
         return 0;
     } else{
-        printf("assignment when calculating backtrack level: ");
-        print_assignment(assignment);
-        getSecondLargest(deision_levels, learned_clause->size);
         // return second largest decision level
         return getSecondLargest(deision_levels, learned_clause->size);
     }
@@ -358,10 +335,10 @@ void print_assignment(Assignment* assignment) {
     for (int i = 0; i < assignment->size; i++) {
         if (assignment->assigned[i]) {
             printf("%d=%s ", i + 1, assignment->values[i] ? "1" : "0");
+            //printf("assigned: %d, depth: %d, antecedent_clause: %d\n", assignment->assigned[i], assignment->depth[i], assignment->antecedent_clause[i]);
         } else {
             printf("%d=NOT ASSIGNED " , i + 1);
         }
-        printf("depth: %d, antecedent_clause: %d\n", assignment->depth[i], assignment->antecedent_clause[i]);
     }
-    printf("current_depth_level: %d\n", assignment->current_depth_level);
+    //printf("current_depth_level: %d\n", assignment->current_depth_level);
 } 

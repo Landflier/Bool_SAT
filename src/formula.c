@@ -98,7 +98,7 @@ void free_clause(Clause* clause) {
 
 //sorts descending
 int comp(const void *a, const void *b) {
-    return (*(int *)b - *(int *)a);
+    return (*(int *)a - *(int *)b);
 }
 
 int getSecondLargest(int* array, int n) {
