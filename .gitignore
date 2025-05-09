@@ -1,6 +1,6 @@
-bin/*
-examples/*
-obj/*
 obj
 bin
-analysis
+.venv
+analysis/results/figures/CBS_FIGURES
+analysis/results/figures/SAT_100-430
+analysis/results/figures
