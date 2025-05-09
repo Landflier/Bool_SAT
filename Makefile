@@ -49,8 +49,26 @@ test: $(TARGET)
 	$(TARGET) examples/pigeonhole.cnf
 	@echo "\nAll tests completed."
 
+test-simple: $(TARGET)
+	@echo "\nTest 4: Pigeonhole principle"
+	$(TARGET) examples/pigeonhole.cnf
+	
+test-pigeonhole-complicated: $(TARGET)
+	@echo "\nTest 4: Pigeonhole principle"
+	$(TARGET) examples/pigeonhole_complicated.cnf
+
 test-SATLIB: $(TARGET)
 	$(TARGET) examples/CBS_k3_n100_m423_b50/CBS_k3_n100_m423_b50_8.cnf
+
+
 # Comprehensive test suite
 tests: $(TARGET_TEST)
 	$(TARGET_TEST) 
+
+test-all-cbs: $(TARGET)
+	@echo "Running tests for all CBS examples..."
+	@for file in examples/CBS_k3_n100_m423_b50/*.cnf; do \
+		echo "\nTesting $${file}..."; \
+		$(TARGET) $${file} || true; \
+	done
+	@echo "\nAll CBS tests completed." 
